@@ -1,0 +1,508 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Arc-length control method (Ritto-Correa &amp; Camotim, 2008)</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-03-10"><meta name="DC.source" content="arc_length_example.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Arc-length control method (Ritto-Correa &amp; Camotim, 2008)</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Notation and references</a></li><li><a href="#2">Algorithms implemented</a></li><li><a href="#3">Equations solved</a></li><li><a href="#4">Function definitions</a></li><li><a href="#5">Function coding</a></li><li><a href="#6">Initial definitions</a></li><li><a href="#7">Applications</a></li><li><a href="#8">Copyright</a></li></ul></div><h2>Notation and references<a name="1"></a></h2><p>The notation followed here and in the following MATLAB codes:</p><div><ul><li><tt>arc_length.m</tt></li></ul></div><p>conforms to that used by Ritto-Correa &amp; Camotim in the following reference:</p><p><tt>Ritto-Correa, M. and Camotim, D. (2008). &#8221;On the Arc-Length and Other Quadratic Control Methods: Established, Less Known and New Implementation Procedures.&#8221; Computers &amp; Structures 86(), 1353&#8211;1368.</tt> This reference is denoted as [1] inside the text of the above code.</p><p>Except for the above study, the following references should be noted as well:</p><div><ul><li><tt>Bergan, P.G., Horrigmoe, B., Krakeland, B. and Soreide, T.H. (1978). &#8221;Solution Techniques for Non-Linear Finite Element Problems.&#8221; Int. J. Num. Methods in Engrg, 12(), 1677&#8211;1696.</tt> This reference is denoted as [2] inside the text of the above code.</li><li><tt>Li, Y. and Shen, Z. (2004). &#8221;Improvements on the Arc-Length-Type Method.&#8221; Acta Mechanica Sinica 20(5), 541&#8211;550.</tt> This reference is denoted as [5] inside the text of the above code.</li></ul></div><h2>Algorithms implemented<a name="2"></a></h2><div><ul><li>Arc length control method as described by Ritto-Correa &amp; Camotim (2008)</li></ul></div><pre class="codeinput">help <span class="string">arc_length</span>
+</pre><pre class="codeoutput">  Generalized arc-length quadratic control method
+ 
+  Description
+      The equation functn(#t#)=0 is solved for #t#, where
+      #t#=[#u#;#lambda#], #u# is the unknown displacement vector and
+      #lambda# is the unknown load factor. The method used is the
+      arc-length method described by Ritto-Correa &amp; Camotim (2008): "On the
+      Arc-Length and Other Quadratic Control Methods: Established, Less
+      Known and New Implementation Procedures."
+      Notation in this code conforms to that used in the above paper. In
+      the following notation prefix "ft" denotes "Filled Triangle" and
+      prefix "fr" denotes "Filled Rhombus", in accordance with the notation
+      used in [1].
+ 
+  Required input parameters
+      #functn# is the function handle defining the equation to be solved.
+      The definition of #functn# must be of the type
+      [#R#,#Q#,#K#]=functn(#t#) where #R# ([#dim# x 1]) is the out of
+      balance force vector, #Q# ([#dim# x 1]) is the tangent load vector
+      given by Q(a,lambda)=-d{R(a,lambda)}/d{lambda}, #K# ([#dim# x #dim#])
+      is the tangent stiffness matrix given by
+      K(a,lambda)=d{R(a,lambda)}/d{a} and #t# ([#dim#+1 x 1]) is the
+      generalized unknown vector defined in the description section.
+      #aO# ([#dim# x 1]) is the starting point of the solution.
+ 
+  Optional input arguments
+      #psiPid# (string) determines the type of the predictor that will be
+      used. It can take the values 'sph' (default) for the spherical
+      predictor, 'cyl' for the cylindrical predictor and 'ell' for the
+      ellipsoidal predictor (as described in [5]).
+      #psiCid# (string) determines the type of the corrector that will be
+      used. It can take the values 'sph' (default) for the spherical
+      corrector, 'cyl' for the cylindrical corrector and 'ell' for the
+      ellipsoidal corrector (as described in [5]).
+      #ninc# (scalar) is the maximum number of increments. Default value is
+      20.
+      #lambdaO# (scalar) is the initial value of load factor. Default value
+      is 1.
+      #Lbar# (scalar) is the arc radius. Default value is 1.
+      #maxit# (scalar) is the maximum number of iterations permitted for
+      each increment. Default value is 20.
+      #tol# (scalar) is the tolerance of the convergence criterion. It is
+      compared to norm(#R#). Default value is 1e-4.
+      #alpha# (scalar) is the constant controlling the distance of the
+      centre of the constraint surface from the last known equilibrium
+      point. Default value is 0.
+      #beta# (scalar) is the constant which controls the shape of the
+      ellipsoidal constraint surface. Default value is 1.
+      #Lbarmin# (scalar) is the minimum acceptable value of #Lbar#. Default
+      value is 0.
+      #Lbarmax# (scalar) is the maximum acceptable value of #Lbar#. Default
+      value is 1.
+      #Deltasmin# (scalar) is the minimum value of partial correction
+      permitted to avoid complex roots. Default value is 0.1.
+      #cutstep# (scalar) is the step length reducing factor. Default value
+      is 0.9.
+ 
+  Output parameters
+      #t_out# ([(#dim#+1) x #ninc#]) are the roots of the equation being
+      solved concatenated appropriately with the corresponding load factors
+      into generalized vectors as described in [1]
+      #SP_out# ([1 x #ninc#]) is the stiffness parameter of each increment.
+      #iter_out# ([1 x #ninc#]) is the number of iterations of each
+      increment.
+ 
+  Parents (calling functions)
+  None.
+ 
+  Children (called functions)
+  None.
+ 
+ __________________________________________________________________________
+  Copyright (c) 09-Mar-2014
+      George Papazafeiropoulos
+      First Lieutenant, Infrastructure Engineer, Hellenic Air Force
+      Civil Engineer, M.Sc., Ph.D. candidate, NTUA
+      Email: gpapazafeiropoulos@yahoo.gr
+      Website: http://users.ntua.gr/gpapazaf/
+ 
+ 
+
+</pre><h2>Equations solved<a name="3"></a></h2><p>The following equations are solved for <img src="arc_length_example_eq51961.png" alt="$$\mathrm{x_i}$"> and <img src="arc_length_example_eq14197.png" alt="$$\mathrm{\lambda}$"></p><p><img src="arc_length_example_eq95966.png" alt="$$x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4} = 5\, \mathrm{\lambda} \ \&#xA;\ \ \ \ (1)$$"></p><p><img src="arc_length_example_eq05444.png" alt="$$\left[\begin{array}{c} {\mathrm{x_1}}^2 + {\mathrm{x_2}}^2 - 49\\&#xA;\mathrm{x_1}\, \mathrm{x_2} - 24 \end{array}\right] =&#xA;\left[\begin{array}{c} 1\\ 1 \end{array}\right] \, \mathrm{\lambda} \ \ \&#xA;\ \ \ (2)$$"></p><h2>Function definitions<a name="4"></a></h2><p>Two functions are utilized for the arc-length procedure:</p><p>The first function (<img src="arc_length_example_eq83357.png" alt="$f_1$">, defined in the file <tt>function2.m</tt> ), needed to solve equation (1) is a cubic polynomial with the following properties:</p><div><ul><li>Function value:</li></ul></div><p><img src="arc_length_example_eq50464.png" alt="$$f_1\left( x \right) = x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4}$$"></p><div><ul><li>Function jacobian (derivative):</li></ul></div><p><img src="arc_length_example_eq06296.png" alt="$$J_1\left( x \right) = 3\, x^2 - \frac{57\, x}{4} + \frac{51}{4} $$"></p><div><ul><li>Passes through the origin:</li></ul></div><p><img src="arc_length_example_eq90722.png" alt="$$f_1\left( 0 \right) = 0 $$"></p><p>The second function (<img src="arc_length_example_eq97751.png" alt="$f_2$">, defined in the file <tt>function1.m</tt> ), needed to solve equation (2) is a nonlinear smooth function with the following properties:</p><div><ul><li>Function value:</li></ul></div><p><img src="arc_length_example_eq12520.png" alt="$$f_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}&#xA;\end{array}\right]\right) = \left[\begin{array}{c} {\mathrm{x_1}}^2 +&#xA;{\mathrm{x_2}}^2 - 49\\ \mathrm{x_1}\, \mathrm{x_2} - 24&#xA;\end{array}\right]$$"></p><div><ul><li>Function jacobian:</li></ul></div><p><img src="arc_length_example_eq04221.png" alt="$$J_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}&#xA;\end{array}\right]\right) = \left[\begin{array}{cc} 2\, \mathrm{x_1} &amp;&#xA;2\, \mathrm{x_2}\\ \mathrm{x_2} &amp; \mathrm{x_1} \end{array}\right] $$"></p><h2>Function coding<a name="5"></a></h2><div><ul><li>For function <img src="arc_length_example_eq83357.png" alt="$f_1$">:</li></ul></div><pre class="language-matlab"><span class="keyword">function</span> [R,Q,K]=function2(t)
+a=t(1:end-1);
+lambda=t(end);
+f1=a^3-57/8*a^2+51/4*a;
+Rint=f1;
+Rext=lambda*5;
+<span class="comment">% Out of balance force column vector (1-by-1)</span>
+R=Rint-Rext;
+<span class="comment">% Tangent force column vector (1-by-1)</span>
+Q=5;
+<span class="comment">% Jacobian matrix (1-by-1)</span>
+K=3*a^2-57/4*a+51/4;
+<span class="keyword">end</span>
+</pre><div><ul><li>For function <img src="arc_length_example_eq97751.png" alt="$f_2$">:</li></ul></div><pre class="language-matlab"><span class="keyword">function</span> [R,Q,K]=function1(t)
+a=t(1:end-1);
+lambda=t(end);
+f1=a(1)^2+a(2)^2-49;
+f2=a(1)*a(2)-24;
+Rint=[f1;f2];
+Rext=lambda*[1;1];
+<span class="comment">% Out of balance force column vector (2-by-1)</span>
+R=Rint-Rext;
+<span class="comment">% Tangent force column vector (2-by-1)</span>
+Q=[1;1];
+<span class="comment">% Jacobian matrix (2-by-2)</span>
+K=[2*a(1), 2*a(2);
+    a(2), a(1)];
+<span class="keyword">end</span>
+</pre><h2>Initial definitions<a name="6"></a></h2><p>In the subsequent code the following initial definitions are made (in the order presented below):</p><div><ol><li>Define function <img src="arc_length_example_eq83357.png" alt="$f_1$"></li><li>Define function <img src="arc_length_example_eq97751.png" alt="$f_2$"></li><li>Set starting point (<img src="arc_length_example_eq38625.png" alt="$a_O$">) for solution of equation (1)</li><li>Set starting point (<img src="arc_length_example_eq38625.png" alt="$a_O$">) for solution of equation (2)</li><li>Set number of increments desired</li><li>Set initial value of load factor (<img src="arc_length_example_eq22450.png" alt="$$\mathrm{\lambda_O}$">) for the solution of equation (1)</li><li>Set initial value of load factor (<img src="arc_length_example_eq22450.png" alt="$$\mathrm{\lambda_O}$">) for the solution of equation (2)</li><li>Set arc radius <img src="arc_length_example_eq28753.png" alt="$\overline{L}$"> for solution of equation (1)</li><li>Set arc radius <img src="arc_length_example_eq28753.png" alt="$\overline{L}$"> for solution of equation (2) with the spherical-spherical arc-length method</li><li>Set arc radius <img src="arc_length_example_eq28753.png" alt="$\overline{L}$"> for solution of equation (2) with the ellipsoidal-ellipsoidal arc-length method</li><li>Set maximum number of iterations permitted per increment</li><li>Set tolerance for convergence</li><li>Set constant controlling the distance of the centre of the constraint surface from the last known equilibrium point (<img src="arc_length_example_eq73988.png" alt="$$\mathrm{\alpha}$">) for solution of equation (1) with the elliptical-elliptical arc-length method and solution of equation (2) with the spherical-spherical arc-length method</li><li>Set constant controlling the distance of the centre of the constraint surface from the last known equilibrium point (<img src="arc_length_example_eq73988.png" alt="$$\mathrm{\alpha}$">) for solution of equation (2) with the ellipsoidal-ellipsoidal arc-length method</li><li>Set constant controlling the shape of the ellipsoidal constraint surface (<img src="arc_length_example_eq45078.png" alt="$$\mathrm{\beta}$">)</li><li>Set minimum value for arc radius <img src="arc_length_example_eq28753.png" alt="$\overline{L}$"></li><li>Set maximum value for arc radius <img src="arc_length_example_eq28753.png" alt="$\overline{L}$"></li><li>Set minimum value of partial correction <img src="arc_length_example_eq65820.png" alt="$$\mathrm{\Delta s_{min}}$"></li><li>Set step length reducing factor</li></ol></div><pre class="codeinput">functn1=@function2; <span class="comment">%1</span>
+functn2=@function1; <span class="comment">%2</span>
+aO1=0; <span class="comment">%3</span>
+aO2=[4;6]; <span class="comment">%4</span>
+ninc=10; <span class="comment">%5</span>
+lambdaO1=0; <span class="comment">%6</span>
+lambdaO2=1; <span class="comment">%7</span>
+Lbar1=0.5; <span class="comment">%8</span>
+Lbar2=1; <span class="comment">%9</span>
+Lbar3=1.5; <span class="comment">%10</span>
+maxit=20; <span class="comment">%11</span>
+tol=5e-5; <span class="comment">%12</span>
+alpha1=-0.5; <span class="comment">%13</span>
+alpha2=0; <span class="comment">%14</span>
+beta=1; <span class="comment">%15</span>
+Lbarmin=0; <span class="comment">%16</span>
+Lbarmax=1; <span class="comment">%17</span>
+Deltasmin=0.1; <span class="comment">%18</span>
+cutstep=0.9; <span class="comment">%19</span>
+</pre><h2>Applications<a name="7"></a></h2><div><ol><li>Default application of the arc length control method as described by Ritto-Correa &amp; Camotim (2008) to solve equation (1)</li><li>Non-default application of the arc length control method as described by Ritto-Correa &amp; Camotim (2008) to solve equation (1)</li><li>Default application of the arc length control method as described by Ritto-Correa &amp; Camotim (2008) to solve equation (2)</li><li>Non-default application of the arc length control method as described by Ritto-Correa &amp; Camotim (2008) to solve equation (2) and plot of the results</li><li>Non-default application of the arc length control method as described by Ritto-Correa &amp; Camotim (2008) to solve equation (2) and plot of the results</li></ol></div><pre class="codeinput">[t_out1,SP_out1,iter_out1] = arc_length(functn1,aO1); <span class="comment">%1</span>
+Result1=[t_out1',iter_out1',SP_out1'] <span class="comment">%1</span>
+[t_out2,SP_out2,iter_out2] = arc_length(functn1,aO1,<span class="keyword">...</span>
+    <span class="string">'ell'</span>,<span class="string">'ell'</span>,ninc,lambdaO1,Lbar1,maxit,tol,alpha1,beta,Lbarmin,Lbarmax,Deltasmin,cutstep); <span class="comment">%2</span>
+Result2=[t_out2',iter_out2',SP_out2'] <span class="comment">%2</span>
+[t_out3,SP_out3,iter_out3] = arc_length(functn2,aO2); <span class="comment">%3</span>
+Result3=[t_out3',iter_out3',SP_out3'] <span class="comment">%3</span>
+[t_out4,SP_out4,iter_out4] = arc_length(functn2,aO2,<span class="keyword">...</span>
+    <span class="string">'sph'</span>,<span class="string">'sph'</span>,ninc,lambdaO2,Lbar2,maxit,tol,alpha1,beta,Lbarmin,Lbarmax,Deltasmin,cutstep); <span class="comment">%4</span>
+Result4=[t_out4',iter_out4',SP_out4'] <span class="comment">%4</span>
+[t_out5,SP_out5,iter_out5] = arc_length(functn2,aO2,<span class="keyword">...</span>
+    <span class="string">'ell'</span>,<span class="string">'ell'</span>,ninc,lambdaO2,Lbar3,maxit,tol,alpha2,beta,Lbarmin,Lbarmax,Deltasmin,cutstep); <span class="comment">%5</span>
+Result5=[t_out5',iter_out5',SP_out5'/10000] <span class="comment">%5</span>
+</pre><pre class="codeoutput">
+Result1 =
+
+    0.9513    1.3084    3.0000
+    1.9196    1.0587    2.0000
+    2.6999    0.4334    2.0000
+    3.6214    0.0449    2.0000
+    4.4013    0.6709    3.0000
+    4.8194    1.5793    3.0000
+    5.1172    2.5339    2.0000
+    5.3553    3.5051    2.0000
+    5.5567    4.4846    2.0000
+    5.7330    5.4690    2.0000
+    5.8909    6.4564    2.0000
+    6.0345    7.4461    2.0000
+    6.1668    8.4373    2.0000
+    6.2897    9.4297    2.0000
+    6.4047   10.4231    2.0000
+    6.5131   11.4172    2.0000
+    6.6157   12.4119    1.0000
+    6.7132   13.4071    1.0000
+    6.8063   14.4028    1.0000
+    6.8953   15.3988    1.0000
+
+
+Result2 =
+
+    0.2016    0.4577    2.0000    1.0000
+    0.4576    0.8877    2.0000    0.7973
+    0.7994    1.2300    2.0000    0.5938
+    1.2777    1.3490    2.0000   -0.2142
+    1.7486    1.1712    2.0000   -0.0923
+    2.1188    0.9080    2.0000   -0.2464
+    2.4295    0.6522    2.0000   -0.3158
+    2.7498    0.3955    4.0000   -0.3322
+    3.1104    0.1636    4.0000   -0.3145
+    3.5549    0.0417    2.0000   31.3806
+
+
+Result3 =
+
+    4.2358    5.7599    0.5887   21.0000
+    4.0785    5.5435    0.4982   21.0000
+    4.0987    5.7049    0.4095   21.0000
+    4.2125    5.6412    0.3742   21.0000
+    4.1551    5.6876    0.3089   21.0000
+    4.0996    5.7327    0.2737   21.0000
+    4.0575    5.7649    0.2366   21.0000
+    4.0294    5.7845    0.1971   21.0000
+    4.0074    5.7995    0.1641   21.0000
+    3.9930    5.8083    0.1342   21.0000
+    3.9815    5.8151    0.1098   21.0000
+    3.9724    5.8205    0.0900   21.0000
+    3.9635    5.8261    0.0751   21.0000
+    3.9563    5.8306    0.0629   21.0000
+    3.9506    5.8342    0.0531   21.0000
+    3.9460    5.8371    0.0450   21.0000
+    3.9422    5.8394    0.0385   21.0000
+    3.9392    5.8412    0.0332   21.0000
+    3.9368    5.8427    0.0289   21.0000
+    3.9348    5.8439    0.0255   21.0000
+
+
+Result4 =
+
+    4.9428    5.0553    0.9874    4.0000
+    5.4209    4.4310    0.0200    5.0000
+    5.5481    4.1575   -0.9339    2.0000
+    5.6292    3.9253   -1.9033    2.0000
+    5.6849    3.7152   -2.8794    2.0000
+    5.7234    3.5190   -3.8592    2.0000
+    5.7493    3.3324   -4.8413    2.0000
+    5.7651    3.1526   -5.8249    1.0000
+    5.7725    2.9780   -6.8095    1.0000
+    5.7728    2.8072   -7.7948    1.0000
+
+
+Result5 =
+
+    5.0596    4.9382    0.9853    4.0000    0.0001
+    5.4265    4.4206   -0.0117    4.0000    0.4604
+    5.5751    4.0872   -1.2138    4.0000    1.0259
+    5.6722    3.7685   -2.6240    4.0000    1.0982
+
+</pre><h2>Copyright<a name="8"></a></h2><p>Copyright (c) 09-Mar-2014 by George Papazafeiropoulos</p><div><ul><li>First Lieutenant, Infrastructure Engineer, Hellenic Air Force</li><li>Civil Engineer, M.Sc., Ph.D. candidate, NTUA</li><li>Email: <a href="mailto:gpapazafeiropoulos@yahoo.gr">gpapazafeiropoulos@yahoo.gr</a></li><li>Website: <a href="http://users.ntua.gr/gpapazaf/">http://users.ntua.gr/gpapazaf/</a></li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Arc-length control method (Ritto-Correa & Camotim, 2008)
+
+%% Notation and references
+%
+% The notation followed here and in the following MATLAB codes:
+%
+% * |arc_length.m|
+%
+% conforms to that used by Ritto-Correa & Camotim in the following
+% reference:
+% 
+% |Ritto-Correa, M. and Camotim, D. (2008). ”On the Arc-Length and Other
+% Quadratic Control Methods: Established, Less Known and New Implementation
+% Procedures.” Computers & Structures 86(), 1353–1368.| This reference is
+% denoted as [1] inside the text of the above code.
+%
+% Except for the above study, the following references should be noted as
+% well:
+% 
+% * |Bergan, P.G., Horrigmoe, B., Krakeland, B. and Soreide, T.H. (1978).
+% ”Solution Techniques for Non-Linear Finite Element Problems.” Int. J.
+% Num. Methods in Engrg, 12(), 1677–1696.| This reference is denoted as
+% [2] inside the text of the above code.
+% * |Li, Y. and Shen, Z. (2004). ”Improvements on the Arc-Length-Type
+% Method.” Acta Mechanica Sinica 20(5), 541–550.| This reference is
+% denoted as [5] inside the text of the above code.
+% 
+%% Algorithms implemented
+%
+% * Arc length control method as described by Ritto-Correa & Camotim (2008)
+% 
+help arc_length
+%% Equations solved
+%
+% The following equations are solved for $$\mathrm{x_i}$ and
+% $$\mathrm{\lambda}$
+%
+% $$x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4} = 5\, \mathrm{\lambda} \ \
+% \ \ \ \ (1)$$
+%
+% $$\left[\begin{array}{c} {\mathrm{x_1}}^2 + {\mathrm{x_2}}^2 - 49\\
+% \mathrm{x_1}\, \mathrm{x_2} - 24 \end{array}\right] =
+% \left[\begin{array}{c} 1\\ 1 \end{array}\right] \, \mathrm{\lambda} \ \ \
+% \ \ \ (2)$$
+%
+%% Function definitions
+%
+% Two functions are utilized for the arc-length procedure:
+%
+% The first function ($f_1$, defined in the file |function2.m| ), needed to
+% solve equation (1) is a cubic polynomial with the following properties:
+% 
+% * Function value:
+% 
+% $$f_1\left( x \right) = x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4}$$
+%
+% * Function jacobian (derivative):
+%
+% $$J_1\left( x \right) = 3\, x^2 - \frac{57\, x}{4} + \frac{51}{4} $$
+%
+% * Passes through the origin:
+%
+% $$f_1\left( 0 \right) = 0 $$
+%
+% The second function ($f_2$, defined in the file |function1.m| ), needed
+% to solve equation (2) is a nonlinear smooth function with the following
+% properties:
+% 
+% * Function value:
+% 
+% $$f_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}
+% \end{array}\right]\right) = \left[\begin{array}{c} {\mathrm{x_1}}^2 +
+% {\mathrm{x_2}}^2 - 49\\ \mathrm{x_1}\, \mathrm{x_2} - 24
+% \end{array}\right]$$
+%
+% * Function jacobian:
+%
+% $$J_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}
+% \end{array}\right]\right) = \left[\begin{array}{cc} 2\, \mathrm{x_1} &
+% 2\, \mathrm{x_2}\\ \mathrm{x_2} & \mathrm{x_1} \end{array}\right] $$
+%
+%% Function coding
+% * For function $f_1$:
+%
+%   function [R,Q,K]=function2(t)
+%   a=t(1:end-1);
+%   lambda=t(end);
+%   f1=a^3-57/8*a^2+51/4*a;
+%   Rint=f1;
+%   Rext=lambda*5;
+%   % Out of balance force column vector (1-by-1)
+%   R=Rint-Rext;
+%   % Tangent force column vector (1-by-1)
+%   Q=5;
+%   % Jacobian matrix (1-by-1)
+%   K=3*a^2-57/4*a+51/4;
+%   end
+% 
+% * For function $f_2$:
+%
+%   function [R,Q,K]=function1(t)
+%   a=t(1:end-1);
+%   lambda=t(end);
+%   f1=a(1)^2+a(2)^2-49;
+%   f2=a(1)*a(2)-24;
+%   Rint=[f1;f2];
+%   Rext=lambda*[1;1];
+%   % Out of balance force column vector (2-by-1)
+%   R=Rint-Rext;
+%   % Tangent force column vector (2-by-1)
+%   Q=[1;1];
+%   % Jacobian matrix (2-by-2)
+%   K=[2*a(1), 2*a(2);
+%       a(2), a(1)];
+%   end
+% 
+%% Initial definitions
+% In the subsequent code the following initial definitions are made (in the
+% order presented below):
+% 
+% # Define function $f_1$
+% # Define function $f_2$
+% # Set starting point ($a_O$) for solution of equation (1)
+% # Set starting point ($a_O$) for solution of equation (2)
+% # Set number of increments desired
+% # Set initial value of load factor ($$\mathrm{\lambda_O}$) for the
+% solution of equation (1)
+% # Set initial value of load factor ($$\mathrm{\lambda_O}$) for the
+% solution of equation (2)
+% # Set arc radius $\overline{L}$ for solution of equation (1)
+% # Set arc radius $\overline{L}$ for solution of equation (2) with the
+% spherical-spherical arc-length method
+% # Set arc radius $\overline{L}$ for solution of equation (2) with the
+% ellipsoidal-ellipsoidal arc-length method
+% # Set maximum number of iterations permitted per increment
+% # Set tolerance for convergence
+% # Set constant controlling the distance of the centre of the constraint
+% surface from the last known equilibrium point ($$\mathrm{\alpha}$) for
+% solution of equation (1) with the elliptical-elliptical arc-length method
+% and solution of equation (2) with the spherical-spherical arc-length
+% method
+% # Set constant controlling the distance of the centre of the constraint
+% surface from the last known equilibrium point ($$\mathrm{\alpha}$) for
+% solution of equation (2) with the ellipsoidal-ellipsoidal arc-length
+% method
+% # Set constant controlling the shape of the ellipsoidal constraint
+% surface ($$\mathrm{\beta}$)
+% # Set minimum value for arc radius $\overline{L}$
+% # Set maximum value for arc radius $\overline{L}$
+% # Set minimum value of partial correction $$\mathrm{\Delta s_{min}}$
+% # Set step length reducing factor
+% 
+functn1=@function2; %1
+functn2=@function1; %2
+aO1=0; %3
+aO2=[4;6]; %4
+ninc=10; %5
+lambdaO1=0; %6
+lambdaO2=1; %7
+Lbar1=0.5; %8
+Lbar2=1; %9
+Lbar3=1.5; %10
+maxit=20; %11
+tol=5e-5; %12
+alpha1=-0.5; %13
+alpha2=0; %14
+beta=1; %15
+Lbarmin=0; %16
+Lbarmax=1; %17
+Deltasmin=0.1; %18
+cutstep=0.9; %19
+
+%% Applications
+% 
+% # Default application of the arc length control method as described by
+% Ritto-Correa & Camotim (2008) to solve equation (1)
+% # Non-default application of the arc length control method as described
+% by Ritto-Correa & Camotim (2008) to solve equation (1)
+% # Default application of the arc length control method as described by
+% Ritto-Correa & Camotim (2008) to solve equation (2)
+% # Non-default application of the arc length control method as described
+% by Ritto-Correa & Camotim (2008) to solve equation (2) and plot of the results
+% # Non-default application of the arc length control method as described
+% by Ritto-Correa & Camotim (2008) to solve equation (2) and plot of the results
+% 
+[t_out1,SP_out1,iter_out1] = arc_length(functn1,aO1); %1
+Result1=[t_out1',iter_out1',SP_out1'] %1
+[t_out2,SP_out2,iter_out2] = arc_length(functn1,aO1,...
+    'ell','ell',ninc,lambdaO1,Lbar1,maxit,tol,alpha1,beta,Lbarmin,Lbarmax,Deltasmin,cutstep); %2
+Result2=[t_out2',iter_out2',SP_out2'] %2
+[t_out3,SP_out3,iter_out3] = arc_length(functn2,aO2); %3
+Result3=[t_out3',iter_out3',SP_out3'] %3
+[t_out4,SP_out4,iter_out4] = arc_length(functn2,aO2,...
+    'sph','sph',ninc,lambdaO2,Lbar2,maxit,tol,alpha1,beta,Lbarmin,Lbarmax,Deltasmin,cutstep); %4
+Result4=[t_out4',iter_out4',SP_out4'] %4
+[t_out5,SP_out5,iter_out5] = arc_length(functn2,aO2,...
+    'ell','ell',ninc,lambdaO2,Lbar3,maxit,tol,alpha2,beta,Lbarmin,Lbarmax,Deltasmin,cutstep); %5
+Result5=[t_out5',iter_out5',SP_out5'/10000] %5
+
+%% Copyright
+%
+% Copyright (c) 09-Mar-2014 by George Papazafeiropoulos
+%
+% * First Lieutenant, Infrastructure Engineer, Hellenic Air Force
+% * Civil Engineer, M.Sc., Ph.D. candidate, NTUA
+% * Email: gpapazafeiropoulos@yahoo.gr
+% * Website: http://users.ntua.gr/gpapazaf/
+%
+
+
+
+##### SOURCE END #####
+--></body></html>

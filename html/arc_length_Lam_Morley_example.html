@@ -1,0 +1,561 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Arc-length control method (Lam &amp; Morley, 1992)</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-03-10"><meta name="DC.source" content="arc_length_Lam_Morley_example.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Arc-length control method (Lam &amp; Morley, 1992)</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Notation and references</a></li><li><a href="#2">Algorithms implemented</a></li><li><a href="#3">Equations solved</a></li><li><a href="#4">Function definitions</a></li><li><a href="#5">Function coding</a></li><li><a href="#6">Initial definitions</a></li><li><a href="#7">Applications</a></li><li><a href="#8">Copyright</a></li></ul></div><h2>Notation and references<a name="1"></a></h2><p>The notation followed here and in the following MATLAB codes:</p><div><ul><li><tt>arc_length_Lam_Morley.m</tt></li><li><tt>arc_length_Lam_Morley_modified.m</tt></li></ul></div><p>conforms to that used by Lam &amp; Morley in the following reference:</p><p><tt>Lam, W. and Morley, C. (1992). &#8221;Arc-Length Method for Passing Limit Points in Structural Calculation.&#8221; J. Struct. Eng., 118(1), 169&#8211;185.</tt> This reference is denoted as [6] inside the text of the above codes.</p><h2>Algorithms implemented<a name="2"></a></h2><div><ol><li>Arc length control method as described by Lam &amp; Morley (1992)</li><li>Modified version of the above method which directs the search towards <img src="arc_length_Lam_Morley_example_eq27710.png" alt="$$\mathrm{\lambda}=1$"> , where <img src="arc_length_Lam_Morley_example_eq14197.png" alt="$$\mathrm{\lambda}$"> is the load factor.</li></ol></div><pre class="codeinput">help <span class="string">arc_length_Lam_Morley</span> <span class="comment">%1</span>
+help <span class="string">arc_length_Lam_Morley_modified</span> <span class="comment">%2</span>
+</pre><pre class="codeoutput">  Arc-length control method (Lam &amp; Morley, 1992)
+ 
+  Description
+      The equation functn(#p#)=#lambda#*#q# is solved for #p#, where
+      #lambda# (load factor) is given as a result along with each root
+      (#p#), with #q# not equal to 0. If the equation functn(#p#)=0 is to
+      be solved, #q# and #functn# are redefined such that
+      functn(#p#)+#q#=#q#. 
+      The method used is described in Lam &amp; Morley (1992): "Arc-Length
+      Method for Passing Limit Points in Structural Calculation" according
+      to the flowchart of Figure 3, p.178.
+      Notation in this code conforms to that used in the above paper.
+ 
+  Required input arguments
+      #functn# is the function handle at the left hand side of the equation
+      to be solved. The definition of #functn# must be of the type:
+      [#f#,#J#]=functn(#p#), where #f# ([#dim# x 1]) is the value of
+      #functn# at #p# ([#dim# x 1]) and #J# ([#dim# x #dim#]) is the value
+      of the Jacobian matrix of #functn# at #p#.
+      #q# ([#dim# x 1]) is the right hand side of the equation
+      functn(#p#)=#lambda#*#q#.
+      #p0# ([#dim# x 1]) is the starting point of the solution.
+ 
+  Optional input arguments
+      #maxIINCS# (scalar) is the number of equilibrium points desired.
+      Default value is 10.
+      #lambda0# (scalar) is the initial load factor. Default value
+      is 0.
+      #Deltalambda# (scalar) is the initial load increment. Default value
+      is 1.
+      #IITERmax# (scalar) is the maximum number of iterations permitted for
+      each converged point. If convergence is not achieved until the
+      maximum iteration the procedure stops and accepts as equilibrium
+      point that calculated at the last iteration. Default value is 20, as
+      recommended by Lam &amp; Morley (1992).
+      #Ide# (scalar) is the desired number of iterations to each converged
+      point. Default value is 1.
+      #tol# (scalar) is the tolerance for convergence criterion (eq. 20) in
+      [6] for #e# and #h#. Default value is 0.00005.
+      #KTup# (scalar) is the stiffness matrix updater (number of iterations
+      after which the tangent stiffness matrix is updated). For #KTup# = 1
+      the algorithm implemented is Full Arc-Length method. For #KTup# = Inf
+      the algorithm implemented is Initial Stiffness Arc-Length method.
+      Default value is 1.
+      #dettol# (scalar) is the tolerance for singularity of Jacobian (#J#).
+      Default value is 1e-4.
+ 
+  Output arguments
+      #p_out# ([#dim# x #maxIINCS#]) roots of the equation being solved.
+      #lambda_out# ([1 x #maxIINCS#]) are the load factors (one per
+      increment). The roots of the equation to be solved correspond to
+      #lambda_out#=1 (or a feasible value as closest as possible to 1).
+      #iter_out# ([1 x #maxIINCS#]) number of iterations for each
+      increment.
+ 
+  Parents (calling functions)
+      None.
+ 
+  Children (called functions)
+      None.
+ 
+ __________________________________________________________________________
+  Copyright (c) 09-Mar-2014
+      George Papazafeiropoulos
+      First Lieutenant, Infrastructure Engineer, Hellenic Air Force
+      Civil Engineer, M.Sc., Ph.D. candidate, NTUA
+      Email: gpapazafeiropoulos@yahoo.gr
+      Website: http://users.ntua.gr/gpapazaf/
+ 
+ 
+
+  Modified arc-length control method (Lam &amp; Morley, 1992)
+ 
+  Description
+      The equation functn(#p#)=#lambda#*#q# is solved for #p#, where
+      #lambda# (load factor) is given as a result along with each root
+      (#p#), with #q# not equal to 0. If the equation functn(#p#)=0 is to
+      be solved, #q# and #functn# are redefined such that
+      functn(#p#)+#q#=#q#. 
+      The method used is described in Lam &amp; Morley (1992): "Arc-Length
+      Method for Passing Limit Points in Structural Calculation" according
+      to the flowchart of Figure 3, p.178, with a minor modification so
+      that the solution procedure is directed towards #lambda#=1.
+      Notation in this code conforms to that used in the above paper.
+ 
+  Required input arguments
+      #functn# is the function handle at the left hand side of the equation
+      to be solved. The definition of #functn# must be of the type:
+      [#f#,#J#]=functn(#p#), where #f# ([#dim# x 1]) is the value of
+      #functn# at #p# ([#dim# x 1]) and #J# ([#dim# x #dim#]) is the value
+      of the Jacobian matrix of #functn# at #p#.
+      #q# ([#dim# x 1]) is the right hand side of the equation
+      functn(#p#)=#lambda#*#q#.
+      #p0# ([#dim# x 1]) is the starting point of the solution.
+ 
+  Optional input arguments
+      #maxIINCS# (scalar) is the number of equilibrium points desired.
+      Default value is 10.
+      #lambda0# (scalar) is the initial load factor. Default value
+      is 0.
+      #Deltalambda# (scalar) is the initial load increment. Default value
+      is 1.
+      #IITERmax# (scalar) is the maximum number of iterations permitted for
+      each converged point. If convergence is not achieved until the
+      maximum iteration the procedure stops and accepts as equilibrium
+      point that calculated at the last iteration. Default value is 20, as
+      recommended by Lam &amp; Morley (1992).
+      #Ide# (scalar) is the desired number of iterations to each converged
+      point. Default value is 1.
+      #tol# (scalar) is the tolerance for convergence criterion (eq. 20) in
+      [6] for #e# and #h#. Default value is 0.00005.
+      #KTup# (scalar) is the stiffness matrix updater (number of iterations
+      after which the tangent stiffness matrix is updated). For #KTup# = 1
+      the algorithm implemented is Full Arc-Length method. For #KTup# = Inf
+      the algorithm implemented is Initial Stiffness Arc-Length method.
+      Default value is 1.
+      #dettol# (scalar) is the tolerance for singularity of Jacobian (#J#).
+      Default value is 1e-4.
+ 
+  Output arguments
+      #p_out# ([#dim# x #maxIINCS#]) roots of the equation being solved.
+      #lambda_out# ([1 x #maxIINCS#]) are the load factors (one per
+      increment). The roots of the equation to be solved correspond to
+      #lambda_out#=1 (or a feasible value as closest as possible to 1).
+      #iter_out# ([1 x #maxIINCS#]) number of iterations for each
+      increment.
+ 
+  Parents (calling functions)
+      None.
+ 
+  Children (called functions)
+      None.
+ 
+ __________________________________________________________________________
+  Copyright (c) 09-Mar-2014
+      George Papazafeiropoulos
+      First Lieutenant, Infrastructure Engineer, Hellenic Air Force
+      Civil Engineer, M.Sc., Ph.D. candidate, NTUA
+      Email: gpapazafeiropoulos@yahoo.gr
+      Website: http://users.ntua.gr/gpapazaf/
+ 
+ 
+
+</pre><h2>Equations solved<a name="3"></a></h2><p>The following equations are solved for <img src="arc_length_Lam_Morley_example_eq51961.png" alt="$$\mathrm{x_i}$"> and <img src="arc_length_Lam_Morley_example_eq14197.png" alt="$$\mathrm{\lambda}$"></p><p><img src="arc_length_Lam_Morley_example_eq95966.png" alt="$$x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4} = 5\, \mathrm{\lambda} \ \&#xA;\ \ \ \ (1)$$"></p><p><img src="arc_length_Lam_Morley_example_eq05444.png" alt="$$\left[\begin{array}{c} {\mathrm{x_1}}^2 + {\mathrm{x_2}}^2 - 49\\&#xA;\mathrm{x_1}\, \mathrm{x_2} - 24 \end{array}\right] =&#xA;\left[\begin{array}{c} 1\\ 1 \end{array}\right] \, \mathrm{\lambda} \ \ \&#xA;\ \ \ (2)$$"></p><h2>Function definitions<a name="4"></a></h2><p>Two functions are utilized for the arc-length procedure:</p><p>The first function (<img src="arc_length_Lam_Morley_example_eq83357.png" alt="$f_1$">, defined in the file <tt>function4.m</tt> ), needed to solve equation (1) is a cubic polynomial with the following properties:</p><div><ul><li>Function value:</li></ul></div><p><img src="arc_length_Lam_Morley_example_eq50464.png" alt="$$f_1\left( x \right) = x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4}$$"></p><div><ul><li>Function jacobian (derivative):</li></ul></div><p><img src="arc_length_Lam_Morley_example_eq06296.png" alt="$$J_1\left( x \right) = 3\, x^2 - \frac{57\, x}{4} + \frac{51}{4} $$"></p><div><ul><li>Passes through the origin:</li></ul></div><p><img src="arc_length_Lam_Morley_example_eq90722.png" alt="$$f_1\left( 0 \right) = 0 $$"></p><p>The second function (<img src="arc_length_Lam_Morley_example_eq97751.png" alt="$f_2$">, defined in the file <tt>function3.m</tt> ), needed to solve equation (2) is a nonlinear smooth function with the following properties:</p><div><ul><li>Function value:</li></ul></div><p><img src="arc_length_Lam_Morley_example_eq12520.png" alt="$$f_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}&#xA;\end{array}\right]\right) = \left[\begin{array}{c} {\mathrm{x_1}}^2 +&#xA;{\mathrm{x_2}}^2 - 49\\ \mathrm{x_1}\, \mathrm{x_2} - 24&#xA;\end{array}\right]$$"></p><div><ul><li>Function jacobian:</li></ul></div><p><img src="arc_length_Lam_Morley_example_eq04221.png" alt="$$J_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}&#xA;\end{array}\right]\right) = \left[\begin{array}{cc} 2\, \mathrm{x_1} &amp;&#xA;2\, \mathrm{x_2}\\ \mathrm{x_2} &amp; \mathrm{x_1} \end{array}\right] $$"></p><h2>Function coding<a name="5"></a></h2><div><ul><li>For function <img src="arc_length_Lam_Morley_example_eq83357.png" alt="$f_1$">:</li></ul></div><pre class="language-matlab"><span class="keyword">function</span> [f,J]=function4(x)
+<span class="comment">% Function output (1-by-1)</span>
+f=x^3-57/8*x^2+51/4*x;
+<span class="comment">% Function Jacobian output (1-by-1)</span>
+J=3*x^2-57/4*x+51/4;
+<span class="keyword">end</span>
+</pre><div><ul><li>For function <img src="arc_length_Lam_Morley_example_eq97751.png" alt="$f_2$">:</li></ul></div><pre class="language-matlab"><span class="keyword">function</span> [f,J]=function3(x)
+<span class="comment">% Function output column vector (2-by-1)</span>
+f1 = x(1)^2 + x(2)^2 - 49;
+f2 = x(1)*x(2) -24;
+f = [f1;f2];
+<span class="comment">% Function Jacobian output matrix (2-by-2)</span>
+J=[ 2*x(1), 2*x(2);
+    x(2),   x(1)];
+<span class="keyword">end</span>
+</pre><h2>Initial definitions<a name="6"></a></h2><p>In the subsequent code the following initial definitions are made (in the order presented below):</p><div><ol><li>Define function <img src="arc_length_Lam_Morley_example_eq83357.png" alt="$f_1$"></li><li>Define function <img src="arc_length_Lam_Morley_example_eq97751.png" alt="$f_2$"></li><li>Set right hand side (<img src="arc_length_Lam_Morley_example_eq50913.png" alt="$q$">) of equation (1)</li><li>Set right hand side (<img src="arc_length_Lam_Morley_example_eq50913.png" alt="$q$">) of equation (2)</li><li>Set starting point (<img src="arc_length_Lam_Morley_example_eq34038.png" alt="$p_0$">) for solution of equation (1)</li><li>Set starting point (<img src="arc_length_Lam_Morley_example_eq34038.png" alt="$p_0$">) for solution of equation (2)</li><li>Set number of increments desired</li><li>Set initial value of <img src="arc_length_Lam_Morley_example_eq84918.png" alt="$$\mathrm{\lambda_0}$"></li><li>Set initial value of <img src="arc_length_Lam_Morley_example_eq24968.png" alt="$$\mathrm{\Delta\lambda}$"></li><li>Set maximum number of iterations permitted per increment</li><li>Set number of iterations desired to each converged point (<img src="arc_length_Lam_Morley_example_eq77287.png" alt="$$I^{de}$">)</li><li>Set number of iterations desired to each converged point (<img src="arc_length_Lam_Morley_example_eq77287.png" alt="$$I^{de}$">) for the modified Lam-Morley algorithm and solution of equation (2)</li><li>Set tolerance for convergence (<img src="arc_length_Lam_Morley_example_eq55994.png" alt="$$\mathrm{\epsilon}$">) for the solution of equation (1). Typical values range from 1/1000 to 1/500</li><li>Set tolerance for convergence (<img src="arc_length_Lam_Morley_example_eq55994.png" alt="$$\mathrm{\epsilon}$">) for the solution of equation (2). Typical values range from 1/1000 to 1/500</li><li>Set the number of iterations every which the stiffness matrix of the problem is updated. <tt>KTup</tt>=1 corresponds to the <i>full</i> arc length method</li><li>Set the tolerance for determining if the stiffness matrix is singular (this is true if its determinant is below <tt>dettol</tt>)</li></ol></div><pre class="codeinput">functn1=@function4; <span class="comment">%1</span>
+functn2=@function3; <span class="comment">%2</span>
+q1=5; <span class="comment">%3</span>
+q2=[1;1]; <span class="comment">%4</span>
+p01=0.1; <span class="comment">%5</span>
+p02=[4;6]; <span class="comment">%6</span>
+maxIINCS=10; <span class="comment">%7</span>
+lambda0=0; <span class="comment">%8</span>
+Deltalambda=1; <span class="comment">%9</span>
+IITERmax=20; <span class="comment">%10</span>
+Ide=1; <span class="comment">%11</span>
+Idemod2=5; <span class="comment">%12</span>
+tol=5e-5; <span class="comment">%13</span>
+tol2=2e-3; <span class="comment">%14</span>
+KTup=1; <span class="comment">%15</span>
+dettol=1e-4; <span class="comment">%16</span>
+</pre><h2>Applications<a name="7"></a></h2><div><ol><li>Default application of the arc length control method as described by Lam &amp; Morley (1992) to solve equation (1)</li><li>Default application of the modified version of the Lam &amp; Morley (1992) arc length control method to solve equation (1)</li><li>Non-default application of the arc length control method as described by Lam &amp; Morley (1992) to solve equation (1)</li><li>Non-default application of the modified version of the Lam &amp; Morley (1992) arc length control method to solve equation (1)</li><li>Default application of the arc length control method as described by Lam &amp; Morley (1992) to solve equation (2)</li><li>Default application of the modified version of the Lam &amp; Morley (1992) arc length control method to solve equation (2)</li><li>Non-default application of the arc length control method as described by Lam &amp; Morley (1992) to solve equation (2)</li><li>Non-default application of the modified version of the Lam &amp; Morley (1992) arc length control method to solve equation (2)</li></ol></div><pre class="codeinput">[p_out1,lambda_out1,iter_out1] = arc_length_Lam_Morley(functn1,q1,p01); <span class="comment">%1</span>
+Result1=[p_out1',lambda_out1',iter_out1'] <span class="comment">%1</span>
+[p_out2,lambda_out2,iter_out2] = arc_length_Lam_Morley_modified(functn1,q1,p01); <span class="comment">%2</span>
+Result2=[p_out2',lambda_out2',iter_out2'] <span class="comment">%2</span>
+[p_out3,lambda_out3,iter_out3] = arc_length_Lam_Morley(functn1,q1,p01,maxIINCS,lambda0,Deltalambda,IITERmax,Ide,tol,KTup,dettol); <span class="comment">%3</span>
+Result3=[p_out3',lambda_out3',iter_out3'] <span class="comment">%3</span>
+[p_out4,lambda_out4,iter_out4] = arc_length_Lam_Morley_modified(functn1,q1,p01,maxIINCS,lambda0,Deltalambda,IITERmax,Ide,tol,KTup,dettol); <span class="comment">%4</span>
+Result4=[p_out4',lambda_out4',iter_out4'] <span class="comment">%4</span>
+[p_out5,lambda_out5,iter_out5] = arc_length_Lam_Morley(functn2,q2,p02); <span class="comment">%5</span>
+Result5=[p_out5',lambda_out5',iter_out5'] <span class="comment">%5</span>
+[p_out6,lambda_out6,iter_out6] = arc_length_Lam_Morley_modified(functn2,q2,p02); <span class="comment">%6</span>
+Result6=[p_out6',lambda_out6',iter_out6'] <span class="comment">%6</span>
+[p_out7,lambda_out7,iter_out7] = arc_length_Lam_Morley(functn2,q2,p02,maxIINCS,lambda0,Deltalambda,IITERmax,Ide,tol2,KTup,dettol); <span class="comment">%7</span>
+Result7=[p_out7',lambda_out7',iter_out7'] <span class="comment">%7</span>
+[p_out8,lambda_out8,iter_out8] = arc_length_Lam_Morley_modified(functn2,q2,p02,maxIINCS,lambda0,Deltalambda,IITERmax,Idemod2,tol2,KTup,dettol); <span class="comment">%8</span>
+Result8=[p_out8',lambda_out8',iter_out8'] <span class="comment">%8</span>
+</pre><pre class="codeoutput">
+Result1 =
+
+    0.5403    0.9934    2.0000
+    0.9807    1.3189    2.0000
+    1.2522    1.3514    2.0000
+    1.4420    1.3137    2.0000
+    1.5824    1.2594    2.0000
+    1.6590    1.2217    2.0000
+    1.7300    1.1822    2.0000
+    1.7636    1.1621    2.0000
+    1.7992    1.1399    2.0000
+    1.8149    1.1298    2.0000
+
+
+Result2 =
+
+    0.5403    0.9934    2.0000
+    0.9807    1.3189    2.0000
+    1.2522    1.3514    2.0000
+    1.4420    1.3137    2.0000
+    1.5824    1.2594    2.0000
+    1.6590    1.2217    2.0000
+    1.7300    1.1822    2.0000
+    1.7636    1.1621    2.0000
+    1.7992    1.1399    2.0000
+    1.8149    1.1298    2.0000
+
+
+Result3 =
+
+    0.5403    0.9934    2.0000
+    0.9807    1.3189    2.0000
+    1.2522    1.3514    2.0000
+    1.4420    1.3137    2.0000
+    1.5824    1.2594    2.0000
+    1.6590    1.2217    2.0000
+    1.7300    1.1822    2.0000
+    1.7636    1.1621    2.0000
+    1.7992    1.1399    2.0000
+    1.8149    1.1298    2.0000
+
+
+Result4 =
+
+    0.5403    0.9934    2.0000
+    0.9807    1.3189    2.0000
+    1.2522    1.3514    2.0000
+    1.4420    1.3137    2.0000
+    1.5824    1.2594    2.0000
+    1.6590    1.2217    2.0000
+    1.7300    1.1822    2.0000
+    1.7636    1.1621    2.0000
+    1.7992    1.1399    2.0000
+    1.8149    1.1298    2.0000
+
+
+Result5 =
+
+    5.8220    3.7946   -1.3961   20.0000
+    5.5474    4.0874   -1.3812   20.0000
+    5.5973    4.0344   -1.3859   20.0000
+    5.5888    4.0483   -1.3851   20.0000
+    5.5888    4.0489   -1.3714    2.0000
+    5.5888    4.0489   -1.3713    2.0000
+    5.5888    4.0489   -1.3713    2.0000
+    5.5888    4.0489   -1.3712    1.0000
+    5.5888    4.0489   -1.3712    2.0000
+    5.5888    4.0489   -1.3713    1.0000
+
+
+Result6 =
+
+    5.3339    4.8149    2.1037   20.0000
+    5.0730    5.0229    1.8003   20.0000
+    5.0697    5.0263    1.7341   20.0000
+    5.0700    5.0276    1.7193   20.0000
+    5.0687    5.0292    1.7224   20.0000
+    5.0684    5.0296    1.7232   20.0000
+    5.0683    5.0296    1.7234   20.0000
+    5.0683    5.0296    1.7234   20.0000
+    5.0683    5.0297    1.7234   20.0000
+    5.0683    5.0297    1.7234   20.0000
+
+
+Result7 =
+
+    5.8220    3.7946   -1.3961   20.0000
+    5.5928    4.0375   -1.4193   11.0000
+    5.5939    4.0345   -1.4312    3.0000
+    5.5936    4.0352   -1.4289    3.0000
+    5.5946    4.0347   -1.4252    2.0000
+    5.5938    4.0356   -1.4251    2.0000
+    5.5930    4.0364   -1.4257    1.0000
+    5.5922    4.0372   -1.4264    1.0000
+    5.5926    4.0367   -1.4264    2.0000
+    5.5934    4.0357   -1.4260    1.0000
+
+
+Result8 =
+
+    5.3339    4.8149    2.1037   20.0000
+    5.0388    4.9887    1.3831   20.0000
+    5.0226    4.9892    1.1042   20.0000
+    5.0137    4.9870    1.0052    6.0000
+    5.0136    4.9869    1.0038    2.0000
+    5.0134    4.9867    1.0006    2.0000
+    5.0131    4.9865    0.9971    2.0000
+    5.0828    4.9136    0.9763   15.0000
+    5.0596    4.9375    0.9803    2.0000
+    5.0044    4.9959    1.0022    3.0000
+
+</pre><h2>Copyright<a name="8"></a></h2><p>Copyright (c) 09-Mar-2014 by George Papazafeiropoulos</p><div><ul><li>First Lieutenant, Infrastructure Engineer, Hellenic Air Force</li><li>Civil Engineer, M.Sc., Ph.D. candidate, NTUA</li><li>Email: <a href="mailto:gpapazafeiropoulos@yahoo.gr">gpapazafeiropoulos@yahoo.gr</a></li><li>Website: <a href="http://users.ntua.gr/gpapazaf/">http://users.ntua.gr/gpapazaf/</a></li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Arc-length control method (Lam & Morley, 1992)
+
+%% Notation and references
+%
+% The notation followed here and in the following MATLAB codes:
+%
+% * |arc_length_Lam_Morley.m|
+% * |arc_length_Lam_Morley_modified.m|
+%
+% conforms to that used by Lam & Morley in the following reference:
+% 
+% |Lam, W. and Morley, C. (1992). ”Arc-Length Method for Passing Limit
+% Points in Structural Calculation.” J. Struct. Eng., 118(1), 169–185.|
+% This reference is denoted as [6] inside the text of the above codes.
+% 
+%% Algorithms implemented
+%
+% # Arc length control method as described by Lam & Morley (1992)
+% # Modified version of the above method which directs the search towards
+% $$\mathrm{\lambda}=1$ , where $$\mathrm{\lambda}$ is the load factor.
+% 
+help arc_length_Lam_Morley %1
+help arc_length_Lam_Morley_modified %2
+%% Equations solved
+%
+% The following equations are solved for $$\mathrm{x_i}$ and
+% $$\mathrm{\lambda}$
+%
+% $$x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4} = 5\, \mathrm{\lambda} \ \
+% \ \ \ \ (1)$$
+%
+% $$\left[\begin{array}{c} {\mathrm{x_1}}^2 + {\mathrm{x_2}}^2 - 49\\
+% \mathrm{x_1}\, \mathrm{x_2} - 24 \end{array}\right] =
+% \left[\begin{array}{c} 1\\ 1 \end{array}\right] \, \mathrm{\lambda} \ \ \
+% \ \ \ (2)$$
+%
+%% Function definitions
+%
+% Two functions are utilized for the arc-length procedure:
+%
+% The first function ($f_1$, defined in the file |function4.m| ), needed to
+% solve equation (1) is a cubic polynomial with the following properties:
+% 
+% * Function value:
+% 
+% $$f_1\left( x \right) = x^3 - \frac{57\, x^2}{8} + \frac{51\, x}{4}$$
+%
+% * Function jacobian (derivative):
+%
+% $$J_1\left( x \right) = 3\, x^2 - \frac{57\, x}{4} + \frac{51}{4} $$
+%
+% * Passes through the origin:
+%
+% $$f_1\left( 0 \right) = 0 $$
+%
+% The second function ($f_2$, defined in the file |function3.m| ), needed
+% to solve equation (2) is a nonlinear smooth function with the following
+% properties:
+% 
+% * Function value:
+% 
+% $$f_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}
+% \end{array}\right]\right) = \left[\begin{array}{c} {\mathrm{x_1}}^2 +
+% {\mathrm{x_2}}^2 - 49\\ \mathrm{x_1}\, \mathrm{x_2} - 24
+% \end{array}\right]$$
+%
+% * Function jacobian:
+%
+% $$J_2\left(\left[\begin{array}{c} \mathrm{x_1}\\ \mathrm{x_2}
+% \end{array}\right]\right) = \left[\begin{array}{cc} 2\, \mathrm{x_1} &
+% 2\, \mathrm{x_2}\\ \mathrm{x_2} & \mathrm{x_1} \end{array}\right] $$
+%
+%% Function coding
+% * For function $f_1$:
+%
+%   function [f,J]=function4(x)
+%   % Function output (1-by-1)
+%   f=x^3-57/8*x^2+51/4*x;
+%   % Function Jacobian output (1-by-1)
+%   J=3*x^2-57/4*x+51/4;
+%   end
+% 
+% * For function $f_2$:
+%
+%   function [f,J]=function3(x)
+%   % Function output column vector (2-by-1)
+%   f1 = x(1)^2 + x(2)^2 - 49;
+%   f2 = x(1)*x(2) -24;
+%   f = [f1;f2];
+%   % Function Jacobian output matrix (2-by-2)
+%   J=[ 2*x(1), 2*x(2);
+%       x(2),   x(1)];
+%   end
+% 
+%% Initial definitions
+% In the subsequent code the following initial definitions are made (in the
+% order presented below):
+% 
+% # Define function $f_1$
+% # Define function $f_2$
+% # Set right hand side ($q$) of equation (1)
+% # Set right hand side ($q$) of equation (2)
+% # Set starting point ($p_0$) for solution of equation (1)
+% # Set starting point ($p_0$) for solution of equation (2)
+% # Set number of increments desired
+% # Set initial value of $$\mathrm{\lambda_0}$
+% # Set initial value of $$\mathrm{\Delta\lambda}$
+% # Set maximum number of iterations permitted per increment
+% # Set number of iterations desired to each converged point
+% ($$I^{de}$)
+% # Set number of iterations desired to each converged point
+% ($$I^{de}$) for the modified Lam-Morley algorithm and solution of
+% equation (2)
+% # Set tolerance for convergence ($$\mathrm{\epsilon}$) for the solution
+% of equation (1). Typical values range from 1/1000 to 1/500
+% # Set tolerance for convergence ($$\mathrm{\epsilon}$) for the solution
+% of equation (2). Typical values range from 1/1000 to 1/500
+% # Set the number of iterations every which the stiffness matrix of the
+% problem is updated. |KTup|=1 corresponds to the _full_ arc length method
+% # Set the tolerance for determining if the stiffness matrix is singular
+% (this is true if its determinant is below |dettol|)
+% 
+functn1=@function4; %1
+functn2=@function3; %2
+q1=5; %3
+q2=[1;1]; %4
+p01=0.1; %5
+p02=[4;6]; %6
+maxIINCS=10; %7
+lambda0=0; %8
+Deltalambda=1; %9
+IITERmax=20; %10
+Ide=1; %11
+Idemod2=5; %12
+tol=5e-5; %13
+tol2=2e-3; %14
+KTup=1; %15
+dettol=1e-4; %16
+%% Applications
+% 
+% # Default application of the arc length control method as described by
+% Lam & Morley (1992) to solve equation (1)
+% # Default application of the modified version of the Lam & Morley (1992)
+% arc length control method to solve equation (1)
+% # Non-default application of the arc length control method as described
+% by Lam & Morley (1992) to solve equation (1)
+% # Non-default application of the modified version of the Lam & Morley
+% (1992) arc length control method to solve equation (1)
+% # Default application of the arc length control method as described by
+% Lam & Morley (1992) to solve equation (2)
+% # Default application of the modified version of the Lam & Morley (1992)
+% arc length control method to solve equation (2)
+% # Non-default application of the arc length control method as described
+% by Lam & Morley (1992) to solve equation (2)
+% # Non-default application of the modified version of the Lam & Morley
+% (1992) arc length control method to solve equation (2)
+% 
+[p_out1,lambda_out1,iter_out1] = arc_length_Lam_Morley(functn1,q1,p01); %1
+Result1=[p_out1',lambda_out1',iter_out1'] %1
+[p_out2,lambda_out2,iter_out2] = arc_length_Lam_Morley_modified(functn1,q1,p01); %2
+Result2=[p_out2',lambda_out2',iter_out2'] %2
+[p_out3,lambda_out3,iter_out3] = arc_length_Lam_Morley(functn1,q1,p01,maxIINCS,lambda0,Deltalambda,IITERmax,Ide,tol,KTup,dettol); %3
+Result3=[p_out3',lambda_out3',iter_out3'] %3
+[p_out4,lambda_out4,iter_out4] = arc_length_Lam_Morley_modified(functn1,q1,p01,maxIINCS,lambda0,Deltalambda,IITERmax,Ide,tol,KTup,dettol); %4
+Result4=[p_out4',lambda_out4',iter_out4'] %4
+[p_out5,lambda_out5,iter_out5] = arc_length_Lam_Morley(functn2,q2,p02); %5
+Result5=[p_out5',lambda_out5',iter_out5'] %5
+[p_out6,lambda_out6,iter_out6] = arc_length_Lam_Morley_modified(functn2,q2,p02); %6
+Result6=[p_out6',lambda_out6',iter_out6'] %6
+[p_out7,lambda_out7,iter_out7] = arc_length_Lam_Morley(functn2,q2,p02,maxIINCS,lambda0,Deltalambda,IITERmax,Ide,tol2,KTup,dettol); %7
+Result7=[p_out7',lambda_out7',iter_out7'] %7
+[p_out8,lambda_out8,iter_out8] = arc_length_Lam_Morley_modified(functn2,q2,p02,maxIINCS,lambda0,Deltalambda,IITERmax,Idemod2,tol2,KTup,dettol); %8
+Result8=[p_out8',lambda_out8',iter_out8'] %8
+
+%% Copyright
+%
+% Copyright (c) 09-Mar-2014 by George Papazafeiropoulos
+%
+% * First Lieutenant, Infrastructure Engineer, Hellenic Air Force
+% * Civil Engineer, M.Sc., Ph.D. candidate, NTUA
+% * Email: gpapazafeiropoulos@yahoo.gr
+% * Website: http://users.ntua.gr/gpapazaf/
+%
+
+
+
+##### SOURCE END #####
+--></body></html>
